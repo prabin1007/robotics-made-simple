@@ -1,6 +1,6 @@
-import partsCsv from '../../RoboticsPartDB/robotics_parts_directory_v2_buy_links.csv?raw';
-import offersCsv from '../../RoboticsPartDB/robotics_online_offers_seed.csv?raw';
-import storesCsv from '../../RoboticsPartDB/robotics_local_stores_bengaluru_seed.csv?raw';
+import partsCsv from '../../RoboticsPartDB/robotics_parts_directory_v3_334_parts.csv?raw';
+import offersCsv from '../../RoboticsPartDB/robotics_online_offers_v3_search_seeds.csv?raw';
+import storesCsv from '../../RoboticsPartDB/robotics_local_stores_bengaluru_v3_part_search.csv?raw';
 import howItWorksCsv from './howItWorksIndex.csv?raw';
 
 function parseCsv(text) {
@@ -64,15 +64,52 @@ const FEATURE_RULES = [
   { words: ['avoid', 'obstacle', 'distance', 'near'], partId: 'SNS-001' },
   { words: ['line follow', 'follow line', 'track line'], partId: 'SNS-003' },
   { words: ['light', 'dark'], partId: 'SNS-004' },
-  { words: ['ambient temperature', 'room temperature', 'humidity'], partId: 'SNS-005' },
+  { words: ['temperature', 'humidity'], partId: 'SNS-005' },
   { words: ['motion', 'movement detector'], partId: 'SNS-006' },
+  { words: ['sound', 'clap', 'noise'], partId: 'SNS-008' },
   { words: ['tilt', 'gesture', 'rotation'], partId: 'SNS-009' },
   { words: ['display', 'show text', 'screen'], partId: 'OUT-005' },
   { words: ['beep', 'buzzer', 'alarm'], partId: 'OUT-003' },
 ];
 
+const SUPPORTED_BEHAVIOURS = [
+  ['move', 'drive', 'forward', 'backward', 'reverse', 'left', 'right', 'turn', 'stop', 'wheel'],
+  ['avoid', 'obstacle', 'distance', 'near'],
+  ['line follow', 'follow line', 'track line'],
+  ['light', 'dark'],
+  ['temperature', 'humidity'],
+  ['motion', 'movement detector'],
+  ['sound', 'clap', 'noise'],
+  ['tilt', 'gesture', 'rotation'],
+  ['display', 'show text', 'screen'],
+  ['beep', 'buzzer', 'alarm'],
+  ['voice', 'speak', 'spoken', 'hear', 'command', 'listen', 'instruction'],
+  ['follow person', 'follow a person', 'human follow'],
+];
+
+const UNSUPPORTED_PLATFORMS = ['fly', 'flying', 'drone', 'airborne', 'swim', 'underwater', 'boat', 'walking legs', 'walk on legs', 'biped'];
+
 function hasAny(text, words) {
   return words.some((word) => text.includes(word));
+}
+
+function findUnsupportedRequirements(brief) {
+  const requirements = brief.behaviors
+    .split(/\r?\n|[,;.]+|\b(?:and then|then|and|but)\b/i)
+    .map((requirement) => requirement.trim())
+    .filter(Boolean);
+
+  const unsupported = requirements.filter((requirement) => {
+    const normalised = requirement.toLowerCase();
+    return !SUPPORTED_BEHAVIOURS.some((words) => hasAny(normalised, words));
+  });
+
+  const projectText = `${brief.project} ${brief.behaviors}`.toLowerCase();
+  if (hasAny(projectText, UNSUPPORTED_PLATFORMS)) {
+    unsupported.unshift('This V1 supports ground robots with wheels, not flying, swimming, or walking-leg robots');
+  }
+
+  return [...new Set(unsupported)];
 }
 
 function decoratePart(part) {
@@ -111,12 +148,13 @@ export function buildPartsPlan(brief) {
   const selectedIds = new Set(BASE_PART_IDS);
   const notes = [];
   const gaps = [];
+  const unsupportedRequirements = findUnsupportedRequirements(brief);
 
   for (const rule of FEATURE_RULES) {
     if (hasAny(text, rule.words)) selectedIds.add(rule.partId);
   }
 
-  if (hasAny(text, ['voice', 'speak', 'command', 'listen', 'instruction'])) {
+  if (hasAny(text, ['voice', 'speak', 'spoken', 'hear', 'command', 'listen', 'instruction'])) {
     selectedIds.add('COM-001');
     notes.push('Voice route in this catalogue: a phone recognises the spoken word, then sends a command through the HC-05 Bluetooth module. The database does not yet contain a standalone word-recognition module.');
   }
@@ -127,7 +165,7 @@ export function buildPartsPlan(brief) {
   }
 
   if (hasAny(text, ['thermal', 'heat source', 'warm object', 'object temperature'])) {
-    gaps.push('No non-contact object-temperature or thermal-array sensor exists in the current catalogue. DHT11 is not a substitute because it measures nearby air.');
+    gaps.push('The expanded catalogue contains thermal-camera options, but this V1 cannot safely choose the exact camera, computer and power setup for a beginner build. DHT11 is not a substitute because it measures nearby air.');
   }
 
   if (!brief.country.toLowerCase().includes('india')) {
@@ -140,13 +178,15 @@ export function buildPartsPlan(brief) {
     parts: [...selectedIds].map((partId) => partsById.get(partId)).filter(Boolean).map(decoratePart),
     notes,
     gaps,
+    unsupportedRequirements,
+    isPartial: unsupportedRequirements.length > 0 || gaps.length > 0,
   };
 }
 
 export function getLocalStores(country) {
   const location = country.toLowerCase();
-  if (!location.includes('india') && !location.includes('bengaluru') && !location.includes('bangalore')) return [];
-  return stores;
+  if (!location.includes('bengaluru') && !location.includes('bangalore')) return [];
+  return stores.filter((store) => store.record_type === 'store_directory');
 }
 
 export const parsedRowCounts = { parts: parts.length, offers: offers.length, stores: stores.length };

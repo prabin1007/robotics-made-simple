@@ -160,19 +160,40 @@ function App() {
 
         {submitted ? (
           <section className="plan" id="plan" aria-live="polite">
-            <div className="plan-header"><div><p className="step-label">02 / Understand the starting parts</p><h2>Your starting plan</h2></div><button type="button" className="edit-button" onClick={editBrief}>Edit project</button></div>
+            <div className="plan-header"><div><p className="step-label">02 / Understand the starting parts</p><h2>{plan.isPartial ? 'Your partial starting plan' : 'Your starting plan'}</h2></div><button type="button" className="edit-button" onClick={editBrief}>Edit project</button></div>
             <div className="brief-strip">
               <div><span>PROJECT</span><strong>{submitted.project}</strong></div><div><span>BEHAVIOUR</span><strong>{submitted.behaviors}</strong></div><div><span>PLACE / BUDGET</span><strong>{submitted.country} · {submitted.budget}</strong></div>
             </div>
             <div className="disclosure" role="note"><b>Database-guided demo—not live AI, live prices, or verified buying advice.</b><span>Check specifications with an adult before buying, connecting, or powering hardware.</span></div>
+            {plan.isPartial ? (
+              <section className="partial-plan" role="alert" aria-labelledby="partial-plan-title">
+                <div className="partial-plan-marker" aria-hidden="true">!</div>
+                <div>
+                  <span>PARTIAL PLAN · STOP BEFORE BUYING</span>
+                  <h3 id="partial-plan-title">Some requirements are not covered yet.</h3>
+                  <p>The parts below cover the supported starting build only. Do not buy parts for the unmatched requirements until they have been checked.</p>
+                  {plan.unsupportedRequirements.length ? (
+                    <div className="unmatched-requirements">
+                      <strong>We could not match:</strong>
+                      <ul>{plan.unsupportedRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}</ul>
+                    </div>
+                  ) : null}
+                  {plan.gaps.length ? (
+                    <div className="unmatched-requirements">
+                      <strong>Missing from this catalogue:</strong>
+                      <ul>{plan.gaps.map((gap) => <li key={gap}>{gap}</li>)}</ul>
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            ) : null}
             {plan.notes.length || plan.gaps.length ? (
               <div className="plan-notes">
                 {plan.notes.map((note) => <p key={note}><strong>Plan note</strong>{note}</p>)}
-                {plan.gaps.map((gap) => <p className="catalogue-gap" key={gap}><strong>Catalogue gap</strong>{gap}</p>)}
               </div>
             ) : null}
             <div className="parts-toolbar">
-              <div><strong>{parts.length}</strong><span>starting parts</span></div>
+              <div><strong>{parts.length}</strong><span>{plan.isPartial ? 'parts for the supported start' : 'starting parts'}</span></div>
               <p>Mark every item so your “Need” list is useful.</p>
               <div className="parts-actions">
                 <button type="button" onClick={markAllPartsNeeded} disabled={allPartsNeeded}>{allPartsNeeded ? 'All parts marked as needed' : 'I need all parts'}</button>
