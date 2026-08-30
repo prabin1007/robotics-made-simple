@@ -1,29 +1,29 @@
 ﻿part_id,part_name,category,tutorial_file
-CTRL-001,Arduino Uno R3,Controllers,CTRL-001_Arduino-Uno-R3_HowItWorks.svg
-CTRL-002,Arduino Nano,Controllers,CTRL-002_Arduino-Nano_HowItWorks.svg
-CTRL-003,ESP32 Dev Board,Controllers,CTRL-003_ESP32-Dev-Board_HowItWorks.svg
-CTRL-004,BBC micro:bit V2,Controllers,CTRL-004_BBC-micro-bit-V2_HowItWorks.svg
-SNS-001,HC-SR04 Ultrasonic Sensor,Sensors,SNS-001_HC-SR04-Ultrasonic-Sensor_HowItWorks.svg
-SNS-002,IR Obstacle Sensor,Sensors,SNS-002_IR-Obstacle-Sensor_HowItWorks.svg
-SNS-003,IR Line Sensor,Sensors,SNS-003_IR-Line-Sensor_HowItWorks.svg
-SNS-004,LDR Photoresistor,Sensors,SNS-004_LDR-Photoresistor_HowItWorks.svg
-SNS-005,DHT11 Module,Sensors,SNS-005_DHT11-Module_HowItWorks.svg
-SNS-006,HC-SR501 PIR,Sensors,SNS-006_HC-SR501-PIR_HowItWorks.svg
-SNS-007,Capacitive Soil Moisture Sensor,Sensors,SNS-007_Capacitive-Soil-Moisture-Sensor_HowItWorks.svg
-SNS-008,Sound Sensor Module,Sensors,SNS-008_Sound-Sensor-Module_HowItWorks.svg
-SNS-009,MPU6050 IMU,Sensors,SNS-009_MPU6050-IMU_HowItWorks.svg
+CTRL-001,Arduino Uno R3,Controllers,CTRL-001_Arduino-Uno-R3_HowItWorks.jpg
+CTRL-002,Arduino Nano,Controllers,CTRL-002_Arduino-Nano_HowItWorks.jpg
+CTRL-003,ESP32 Dev Board,Controllers,CTRL-003_ESP32-Dev-Board_HowItWorks.jpg
+CTRL-004,BBC micro:bit V2,Controllers,CTRL-004_BBC-micro-bit-V2_HowItWorks.jpg
+SNS-001,HC-SR04 Ultrasonic Sensor,Sensors,SNS-001_HC-SR04-Ultrasonic-Sensor_HowItWorks.jpg
+SNS-002,IR Obstacle Sensor,Sensors,SNS-002_IR-Obstacle-Sensor_HowItWorks.jpg
+SNS-003,IR Line Sensor,Sensors,SNS-003_IR-Line-Sensor_HowItWorks.jpg
+SNS-004,LDR Photoresistor,Sensors,SNS-004_LDR-Photoresistor_HowItWorks.jpg
+SNS-005,DHT11 Module,Sensors,SNS-005_DHT11-Module_HowItWorks.jpg
+SNS-006,HC-SR501 PIR,Sensors,SNS-006_HC-SR501-PIR_HowItWorks.jpg
+SNS-007,Capacitive Soil Moisture Sensor,Sensors,SNS-007_Capacitive-Soil-Moisture-Sensor_HowItWorks.jpg
+SNS-008,Sound Sensor Module,Sensors,SNS-008_Sound-Sensor-Module_HowItWorks.jpg
+SNS-009,MPU6050 IMU,Sensors,SNS-009_MPU6050-IMU_HowItWorks.jpg
 MOT-001,BO Geared DC Motor,Motors & Motion,MOT-001_BO-Geared-DC-Motor_HowItWorks.svg
 MOT-002,TT Geared DC Motor,Motors & Motion,MOT-002_TT-Geared-DC-Motor_HowItWorks.svg
 MOT-003,SG90 Micro Servo,Motors & Motion,MOT-003_SG90-Micro-Servo_HowItWorks.svg
 MOT-004,MG90S Servo,Motors & Motion,MOT-004_MG90S-Servo_HowItWorks.svg
 MOT-005,28BYJ-48 + ULN2003,Motors & Motion,MOT-005_28BYJ-48-ULN2003_HowItWorks.svg
-DRV-001,L298N Motor Driver,Motor Drivers,DRV-001_L298N-Motor-Driver_HowItWorks.svg
-DRV-002,L293D IC,Motor Drivers,DRV-002_L293D-IC_HowItWorks.svg
-DRV-003,TB6612FNG Driver,Motor Drivers,DRV-003_TB6612FNG-Driver_HowItWorks.svg
-PWR-001,4xAA Battery Holder,Power,PWR-001_4xAA-Battery-Holder_HowItWorks.svg
-PWR-002,USB Power Bank,Power,PWR-002_USB-Power-Bank_HowItWorks.svg
-PWR-003,LM2596 Buck Converter,Power,PWR-003_LM2596-Buck-Converter_HowItWorks.svg
-OUT-001,5mm LED,Outputs,OUT-001_5mm-LED_HowItWorks.svg
+DRV-001,L298N Motor Driver,Motor Drivers,DRV-001_L298N-Motor-Driver_HowItWorks.jpg
+DRV-002,L293D IC,Motor Drivers,DRV-002_L293D-IC_HowItWorks.jpg
+DRV-003,TB6612FNG Driver,Motor Drivers,DRV-003_TB6612FNG-Driver_HowItWorks.jpg
+PWR-001,4xAA Battery Holder,Power,PWR-001_4xAA-Battery-Holder_HowItWorks.jpg
+PWR-002,USB Power Bank,Power,PWR-002_USB-Power-Bank_HowItWorks.jpg
+PWR-003,LM2596 Buck Converter,Power,PWR-003_LM2596-Buck-Converter_HowItWorks.jpg
+OUT-001,5mm LED,Outputs,OUT-001_5mm-LED_HowItWorks.jpg
 OUT-002,RGB LED,Outputs,OUT-002_RGB-LED_HowItWorks.svg
 OUT-003,Active Buzzer,Outputs,OUT-003_Active-Buzzer_HowItWorks.svg
 OUT-004,0.96 OLED I2C,Outputs,OUT-004_0.96-OLED-I2C_HowItWorks.svg
@@ -46,8 +46,8 @@ BASIC-002,10k Ohm Resistor,Basic Electronics,BASIC-002_10k-Ohm-Resistor_HowItWor
 BASIC-003,2N2222 NPN Transistor,Basic Electronics,BASIC-003_2N2222-NPN-Transistor_HowItWorks.svg
 BASIC-004,1N4007 Diode,Basic Electronics,BASIC-004_1N4007-Diode_HowItWorks.svg
 COM-001,HC-05 Bluetooth Module,Communication,COM-001_HC-05-Bluetooth-Module_HowItWorks.svg
-COM-002,NRF24L01 Module,Communication,COM-002_NRF24L01-Module_HowItWorks.svg
-COM-003,RC522 RFID Module,Communication,COM-003_RC522-RFID-Module_HowItWorks.svg
-TOOL-001,Digital Multimeter,Tools,TOOL-001_Digital-Multimeter_HowItWorks.svg
-TOOL-002,Small Screwdriver Set,Tools,TOOL-002_Small-Screwdriver-Set_HowItWorks.svg
-TOOL-003,Wire Stripper/Cutter,Tools,TOOL-003_Wire-Stripper-Cutter_HowItWorks.svg
+COM-002,NRF24L01 Module,Communication,COM-002_NRF24L01-Module_HowItWorks.jpg
+COM-003,RC522 RFID Module,Communication,COM-003_RC522-RFID-Module_HowItWorks.jpg
+TOOL-001,Digital Multimeter,Tools,TOOL-001_Digital-Multimeter_HowItWorks.jpg
+TOOL-002,Small Screwdriver Set,Tools,TOOL-002_Small-Screwdriver-Set_HowItWorks.jpg
+TOOL-003,Wire Stripper/Cutter,Tools,TOOL-003_Wire-Stripper-Cutter_HowItWorks.jpg
