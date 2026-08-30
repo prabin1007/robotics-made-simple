@@ -3,6 +3,7 @@ dist/
 .tmp-*/
 .edge-*/
 *.png
+!public/how-it-works/*.png
 *.log
 .env
 .env.*
