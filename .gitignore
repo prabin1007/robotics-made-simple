@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.tmp-*/
+.edge-*/
+*.png
+*.log
+.env
+.env.*
+!.env.example
+
+# Local workshop material and agent configuration
+KickOff/
+.agents/
+skills-lock.json
+
