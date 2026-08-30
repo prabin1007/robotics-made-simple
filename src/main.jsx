@@ -52,6 +52,33 @@ function PartMetaphor({ part }) {
   );
 }
 
+function PartTutorial({ part }) {
+  if (!part.tutorial) return null;
+
+  return (
+    <details className="part-tutorial">
+      <summary>
+        <span>How this part works</span>
+        <small>5-step visual guide</small>
+      </summary>
+      <figure>
+        <img
+          src={part.tutorial.file}
+          alt={`Five-step visual explanation of how ${part.tutorial.title} works`}
+          width="1600"
+          height="1040"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption>
+          <span>Read from left to right, then check “Remember” and “Watch out”.</span>
+          <a href={part.tutorial.file} target="_blank" rel="noreferrer">Open full-size guide <span aria-hidden="true">↗</span></a>
+        </figcaption>
+      </figure>
+    </details>
+  );
+}
+
 function App() {
   const [brief, setBrief] = useState({ project: '', behaviors: '', country: '', budget: '' });
   const [submitted, setSubmitted] = useState(null);
@@ -160,6 +187,7 @@ function App() {
                     <span className="part-group">{part.category} · Qty {part.usual_qty}</span><h3>{part.part_name}</h3>
                     <p><strong>{part.kid_friendly_name}.</strong> {part.what_it_does}.</p>
                     <PartMetaphor part={part} />
+                    <PartTutorial part={part} />
                     <div className="part-facts"><span>{part.skill_level}</span><span>{part.voltage}</span><span>{part.compatible_with}</span></div>
                     <details><summary>What to check before buying</summary><p><b>Common mistake:</b> {part.common_mistake}. <b>Safety:</b> {part.safety_note}.</p></details>
                     {part.priceLead ? <p className="price-lead">Price lead: ₹{part.priceLead.price_inr} from {part.priceLead.seller}, checked {part.priceLead.checked_date}. Not a live price or direct product link.</p> : null}

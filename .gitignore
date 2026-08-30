@@ -10,6 +10,7 @@ dist/
 
 # Local workshop material and agent configuration
 KickOff/
+HowItWorks/
 .agents/
 skills-lock.json
 .vercel

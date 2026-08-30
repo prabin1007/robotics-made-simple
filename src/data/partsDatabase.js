@@ -1,6 +1,7 @@
 import partsCsv from '../../RoboticsPartDB/robotics_parts_directory_v2_buy_links.csv?raw';
 import offersCsv from '../../RoboticsPartDB/robotics_online_offers_seed.csv?raw';
 import storesCsv from '../../RoboticsPartDB/robotics_local_stores_bengaluru_seed.csv?raw';
+import howItWorksCsv from './howItWorksIndex.csv?raw';
 
 function parseCsv(text) {
   const rows = [];
@@ -42,7 +43,9 @@ function parseCsv(text) {
 const parts = parseCsv(partsCsv);
 const offers = parseCsv(offersCsv);
 const stores = parseCsv(storesCsv);
+const tutorials = parseCsv(howItWorksCsv);
 const partsById = new Map(parts.map((part) => [part.part_id, part]));
+const tutorialsByPart = new Map(tutorials.map((tutorial) => [tutorial.part_id, tutorial]));
 const offersByPart = new Map();
 
 for (const offer of offers) {
@@ -74,6 +77,7 @@ function hasAny(text, words) {
 
 function decoratePart(part) {
   const partOffers = offersByPart.get(part.part_id) ?? [];
+  const tutorial = tutorialsByPart.get(part.part_id);
   const cheapestLead = partOffers.reduce((best, offer) => {
     const price = Number(offer.price_inr);
     if (!Number.isFinite(price)) return best;
@@ -82,6 +86,10 @@ function decoratePart(part) {
 
   return {
     ...part,
+    tutorial: tutorial ? {
+      file: `/how-it-works/${tutorial.tutorial_file}`,
+      title: tutorial.part_name,
+    } : null,
     priceLead: cheapestLead,
     searchLinks: [
       { label: 'Search Robu', url: part.online_search_robu },
