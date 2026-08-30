@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.vercel
+.tmp-*
+.edge-*
+KickOff
+.agents
+.interface-design
+docs
+*.png
+*.log
+skills-lock.json
+IDEA_SCOPE.md
