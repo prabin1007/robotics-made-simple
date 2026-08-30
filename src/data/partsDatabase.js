@@ -1,6 +1,6 @@
-import partsCsv from '../../RoboticsPartDB/robotics_parts_directory_v3_334_parts.csv?raw';
-import offersCsv from '../../RoboticsPartDB/robotics_online_offers_v3_search_seeds.csv?raw';
-import storesCsv from '../../RoboticsPartDB/robotics_local_stores_bengaluru_v3_part_search.csv?raw';
+import partsCsv from '../../RoboticsPartDB/robotics_parts_directory_v5_school_project_prices.csv?raw';
+import offersCsv from '../../RoboticsPartDB/robotics_online_offers_v5_school_project_prices.csv?raw';
+import storesCsv from '../../RoboticsPartDB/robotics_local_stores_bengaluru_v5_school_project_prices.csv?raw';
 import howItWorksCsv from './howItWorksIndex.csv?raw';
 
 function parseCsv(text) {
@@ -116,13 +116,23 @@ function decoratePart(part) {
   const partOffers = offersByPart.get(part.part_id) ?? [];
   const tutorial = tutorialsByPart.get(part.part_id);
   const cheapestLead = partOffers.reduce((best, offer) => {
+    if (!offer.price_inr?.trim()) return best;
     const price = Number(offer.price_inr);
-    if (!Number.isFinite(price)) return best;
+    if (!Number.isFinite(price) || price <= 0) return best;
     return !best || price < Number(best.price_inr) ? offer : best;
   }, null);
 
   return {
     ...part,
+    priceEstimate: {
+      min: Number(part.price_min_inr),
+      typical: Number(part.school_project_price_inr || part.price_typical_inr),
+      max: Number(part.price_max_inr),
+      confidence: part.price_confidence,
+      basis: part.price_basis,
+      asOf: part.price_as_of,
+      note: part.school_price_note,
+    },
     tutorial: tutorial ? {
       file: `/how-it-works/${tutorial.tutorial_file}`,
       title: tutorial.part_name,
@@ -143,15 +153,27 @@ export const databaseStats = {
   bengaluruStores: stores.length,
 };
 
+export function isBengaluruLocation(location = '') {
+  const normalised = location.toLowerCase();
+  return normalised.includes('bengaluru') || normalised.includes('bangalore');
+}
+
 export function buildPartsPlan(brief) {
   const text = `${brief.project} ${brief.behaviors}`.toLowerCase();
+  const requestsObjectTemperature = hasAny(text, ['thermal', 'heat source', 'warm object', 'object temperature']);
   const selectedIds = new Set(BASE_PART_IDS);
   const notes = [];
   const gaps = [];
   const unsupportedRequirements = findUnsupportedRequirements(brief);
 
   for (const rule of FEATURE_RULES) {
-    if (hasAny(text, rule.words)) selectedIds.add(rule.partId);
+    if (rule.partId === 'SNS-005') {
+      const requestsAirTemperatureOrHumidity = text.includes('humidity')
+        || (text.includes('temperature') && !requestsObjectTemperature);
+      if (requestsAirTemperatureOrHumidity) selectedIds.add(rule.partId);
+    } else if (hasAny(text, rule.words)) {
+      selectedIds.add(rule.partId);
+    }
   }
 
   if (hasAny(text, ['voice', 'speak', 'spoken', 'hear', 'command', 'listen', 'instruction'])) {
@@ -164,15 +186,19 @@ export function buildPartsPlan(brief) {
     notes.push('The HC-SR04 can follow distance to the nearest object; it cannot confirm that the object is a person.');
   }
 
-  if (hasAny(text, ['thermal', 'heat source', 'warm object', 'object temperature'])) {
+  if (requestsObjectTemperature) {
     gaps.push('The expanded catalogue contains thermal-camera options, but this V1 cannot safely choose the exact camera, computer and power setup for a beginner build. DHT11 is not a substitute because it measures nearby air.');
+  }
+
+  if (!isBengaluruLocation(brief.country)) {
+    notes.push('Local store details are currently available only for Bangalore. Your parts plan is still shown, and you can use the online searches for your city.');
   }
 
   if (!brief.country.toLowerCase().includes('india')) {
     notes.push('Seller searches and price leads in this database are India-focused; use the specifications to search in the selected country.');
   }
 
-  notes.push(`The budget is ${brief.budget}. Only ${offers.length} dated price leads exist, so this V1 does not claim the full plan fits the budget.`);
+  notes.push(`The budget is ${brief.budget}. Price ranges are planning estimates dated ${parts[0]?.price_as_of || 'in the catalogue'}, not live quotes or stock confirmations.`);
 
   return {
     parts: [...selectedIds].map((partId) => partsById.get(partId)).filter(Boolean).map(decoratePart),
@@ -184,8 +210,7 @@ export function buildPartsPlan(brief) {
 }
 
 export function getLocalStores(country) {
-  const location = country.toLowerCase();
-  if (!location.includes('bengaluru') && !location.includes('bangalore')) return [];
+  if (!isBengaluruLocation(country)) return [];
   return stores.filter((store) => store.record_type === 'store_directory');
 }
 

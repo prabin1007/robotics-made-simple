@@ -4,6 +4,7 @@ dist/
 .edge-*/
 *.png
 *.log
+test-results/
 .env
 .env.*
 !.env.example

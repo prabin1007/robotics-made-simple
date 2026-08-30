@@ -1,7 +1,44 @@
 import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles.css';
-import { buildPartsPlan, databaseStats, getLocalStores } from './data/partsDatabase';
+import { buildPartsPlan, databaseStats, getLocalStores, isBengaluruLocation } from './data/partsDatabase';
+
+const DEFAULT_BRIEF = { project: '', behaviors: '', country: 'Bangalore, India', budget: '' };
+const inr = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
+
+function parseBudgetRange(value) {
+  const amounts = (value.match(/\d[\d,]*(?:\.\d+)?\s*[kK]?/g) ?? [])
+    .map((amount) => {
+      const usesThousands = /k/i.test(amount);
+      const number = Number(amount.replaceAll(',', '').replace(/k/i, '').trim());
+      return usesThousands ? number * 1000 : number;
+    })
+    .filter(Number.isFinite);
+  if (!amounts.length) return null;
+  return amounts.length === 1 ? { min: 0, max: amounts[0] } : { min: Math.min(...amounts), max: Math.max(...amounts) };
+}
+
+function totalSelectedPrices(selectedParts) {
+  return selectedParts.reduce((total, part) => {
+    const estimate = part.priceEstimate;
+    if (!estimate || !Number.isFinite(estimate.typical)) return { ...total, missing: total.missing + 1 };
+    return {
+      min: total.min + estimate.min,
+      typical: total.typical + estimate.typical,
+      max: total.max + estimate.max,
+      priced: total.priced + 1,
+      missing: total.missing,
+    };
+  }, { min: 0, typical: 0, max: 0, priced: 0, missing: 0 });
+}
+
+function compareWithBudget(estimate, budgetText) {
+  const budget = parseBudgetRange(budgetText);
+  if (!budget) return { state: 'unknown', text: 'Budget format could not be compared. Use a number or range, such as ₹3,000–₹5,000.' };
+  if (estimate > budget.max) return { state: 'over', text: `About ₹${inr.format(estimate - budget.max)} above your budget limit.` };
+  if (budget.min > 0 && estimate < budget.min) return { state: 'under', text: `About ₹${inr.format(budget.min - estimate)} below the lower end of your budget.` };
+  return { state: 'within', text: 'The planning estimate is within your stated budget.' };
+}
 
 function RobotBlueprint() {
   return (
@@ -80,7 +117,7 @@ function PartTutorial({ part }) {
 }
 
 function App() {
-  const [brief, setBrief] = useState({ project: '', behaviors: '', country: '', budget: '' });
+  const [brief, setBrief] = useState({ ...DEFAULT_BRIEF });
   const [submitted, setSubmitted] = useState(null);
   const [choices, setChoices] = useState({});
   const [feedback, setFeedback] = useState('');
@@ -89,7 +126,11 @@ function App() {
   const parts = plan?.parts ?? [];
   const localStores = submitted ? getLocalStores(submitted.country) : [];
   const neededParts = parts.filter((part) => choices[part.part_id] === 'need');
+  const selectedPriceTotal = useMemo(() => totalSelectedPrices(neededParts), [neededParts]);
+  const budgetComparison = submitted && neededParts.length ? compareWithBudget(selectedPriceTotal.typical, submitted.budget) : null;
   const allPartsNeeded = parts.length > 0 && parts.every((part) => choices[part.part_id] === 'need');
+  const allPartsMarked = parts.length > 0 && parts.every((part) => Boolean(choices[part.part_id]));
+  const showLocationNotice = brief.country.trim() && !isBengaluruLocation(brief.country);
 
   function updateBrief(event) {
     setBrief((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -97,7 +138,15 @@ function App() {
   }
 
   function useExample() {
-    setBrief({ project: 'Dog-shaped robot with hidden wheels', behaviors: 'Hear “left” or “right” and move a short distance in that direction', country: 'India', budget: '₹3,000–₹5,000' });
+    setBrief({ project: 'Dog-shaped robot with hidden wheels', behaviors: 'Hear “left” or “right” and move a short distance in that direction', country: 'Bangalore, India', budget: '₹3,000–₹5,000' });
+    setError('');
+  }
+
+  function resetBrief() {
+    setBrief({ ...DEFAULT_BRIEF });
+    setSubmitted(null);
+    setChoices({});
+    setFeedback('');
     setError('');
   }
 
@@ -145,11 +194,11 @@ function App() {
             <p>The behavior, country, and budget change what belongs in the plan. We ask first so the list has a reason.</p>
           </div>
           <form className="project-form" onSubmit={createPlan} noValidate>
-            <div className="form-head"><span>PROJECT BRIEF</span><button type="button" className="example-button" onClick={useExample}>Use dog robot example</button></div>
+            <div className="form-head"><span>PROJECT BRIEF</span><div className="form-head-actions"><button type="button" className="reset-button" onClick={resetBrief}>Reset</button><button type="button" className="example-button" onClick={useExample}>Use dog robot example</button></div></div>
             <InputField label="What animal-like robot has been finalised?" hint="Example: A dog-shaped robot with hidden wheels"><input name="project" value={brief.project} onChange={updateBrief} placeholder="Describe the robot" autoComplete="off" /></InputField>
             <InputField label="What should it do?" hint="Use clear actions, such as hear ‘left’ and turn left"><textarea name="behaviors" value={brief.behaviors} onChange={updateBrief} placeholder="List the intended behaviours" rows="3" /></InputField>
             <div className="field-pair">
-              <InputField label="Where will you buy parts?" hint="Country, not a store"><input name="country" value={brief.country} onChange={updateBrief} placeholder="India" autoComplete="country-name" /></InputField>
+              <InputField label="Where will you buy parts?" hint="City and country. Local store details currently cover Bangalore only."><input name="country" value={brief.country} onChange={updateBrief} placeholder="Bangalore, India" autoComplete="address-level2" />{showLocationNotice ? <small className="location-notice" role="note">We are still developing local-store coverage for other cities. Your parts plan will still be created.</small> : null}</InputField>
               <InputField label="What is the budget range?" hint="Use your local currency"><input name="budget" value={brief.budget} onChange={updateBrief} placeholder="₹3,000–₹5,000" /></InputField>
             </div>
             {error ? <p className="form-error" role="alert">{error}</p> : null}
@@ -210,6 +259,10 @@ function App() {
                     <PartMetaphor part={part} />
                     <PartTutorial part={part} />
                     <div className="part-facts"><span>{part.skill_level}</span><span>{part.voltage}</span><span>{part.compatible_with}</span></div>
+                    <div className="part-price-estimate">
+                      <strong>Planning estimate: ₹{inr.format(part.priceEstimate.typical)}</strong>
+                      <span>Range ₹{inr.format(part.priceEstimate.min)}–₹{inr.format(part.priceEstimate.max)} · {part.priceEstimate.confidence} confidence · dated {part.priceEstimate.asOf}</span>
+                    </div>
                     <details><summary>What to check before buying</summary><p><b>Common mistake:</b> {part.common_mistake}. <b>Safety:</b> {part.safety_note}.</p></details>
                     {part.priceLead ? <p className="price-lead">Price lead: ₹{part.priceLead.price_inr} from {part.priceLead.seller}, checked {part.priceLead.checked_date}. Not a live price or direct product link.</p> : null}
                     <div className="buy-searches">{part.searchLinks.map((link) => <a href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label} <span aria-hidden="true">↗</span></a>)}</div>
@@ -219,7 +272,7 @@ function App() {
               ))}
             </div>
             <section className="summary-card" aria-labelledby="summary-title">
-              <div><p className="step-label">03 / Take the next step</p><h2 id="summary-title">Your “Need” list</h2>{neededParts.length ? <ul>{neededParts.map((part) => <li key={part.part_id}>{part.usual_qty} × {part.part_name}</li>)}</ul> : <p className="empty-summary">Mark parts above as “Need” and they will appear here.</p>}</div>
+              <div><p className="step-label">03 / Take the next step</p><h2 id="summary-title">Your “Need” list</h2>{neededParts.length ? <><ul>{neededParts.map((part) => <li key={part.part_id}>{part.usual_qty} × {part.part_name} <span>· ₹{inr.format(part.priceEstimate.typical)} estimate</span></li>)}</ul><div className={`budget-check budget-${budgetComparison.state}`} role="status"><span>SELECTED-PARTS ESTIMATE</span><strong>₹{inr.format(selectedPriceTotal.typical)}</strong><p>Combined range: ₹{inr.format(selectedPriceTotal.min)}–₹{inr.format(selectedPriceTotal.max)}</p><b>{budgetComparison.text}</b>{selectedPriceTotal.missing ? <small>{selectedPriceTotal.missing} selected item(s) have no estimate and are excluded.</small> : null}</div><p className="price-assumption">Assumption: each CSV school-project price covers one listed purchase line, including the displayed quantity or pack. These are tentative India estimates, not a checkout total.</p></> : <p className="empty-summary">{allPartsMarked ? 'You already have every listed part. Nothing needs to be bought for this plan.' : 'Mark parts above as “Need” and they will appear here with an estimated total.'}</p>}</div>
               <div className="first-stage"><span>FIRST BUILD STAGE</span><strong>Make the wheels move safely</strong><p>Before adding sensors or voice, connect the controller, motor driver, motors, and low-voltage power with an adult.</p></div>
             </section>
             {localStores.length ? (

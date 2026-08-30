@@ -24,28 +24,28 @@ PWR-001,4xAA Battery Holder,Power,PWR-001_4xAA-Battery-Holder_HowItWorks.jpg
 PWR-002,USB Power Bank,Power,PWR-002_USB-Power-Bank_HowItWorks.jpg
 PWR-003,LM2596 Buck Converter,Power,PWR-003_LM2596-Buck-Converter_HowItWorks.jpg
 OUT-001,5mm LED,Outputs,OUT-001_5mm-LED_HowItWorks.jpg
-OUT-002,RGB LED,Outputs,OUT-002_RGB-LED_HowItWorks.svg
-OUT-003,Active Buzzer,Outputs,OUT-003_Active-Buzzer_HowItWorks.svg
-OUT-004,0.96 OLED I2C,Outputs,OUT-004_0.96-OLED-I2C_HowItWorks.svg
-OUT-005,16x2 I2C LCD,Outputs,OUT-005_16x2-I2C-LCD_HowItWorks.svg
-OUT-006,1-Channel Relay Module,Outputs,OUT-006_1-Channel-Relay-Module_HowItWorks.svg
-IN-001,Tactile Push Button,Inputs,IN-001_Tactile-Push-Button_HowItWorks.svg
-IN-002,10k Potentiometer,Inputs,IN-002_10k-Potentiometer_HowItWorks.svg
-IN-003,Joystick Module,Inputs,IN-003_Joystick-Module_HowItWorks.svg
-CON-001,830-Point Breadboard,Connections,CON-001_830-Point-Breadboard_HowItWorks.svg
-CON-002,Male-Male Jumper Wires,Connections,CON-002_Male-Male-Jumper-Wires_HowItWorks.svg
-CON-003,Male-Female Jumper Wires,Connections,CON-003_Male-Female-Jumper-Wires_HowItWorks.svg
-CON-004,Female-Female Jumper Wires,Connections,CON-004_Female-Female-Jumper-Wires_HowItWorks.svg
-CON-005,USB Data Cable,Connections,CON-005_USB-Data-Cable_HowItWorks.svg
-MECH-001,2WD Robot Chassis,Mechanical,MECH-001_2WD-Robot-Chassis_HowItWorks.svg
-MECH-002,Robot Wheel,Mechanical,MECH-002_Robot-Wheel_HowItWorks.svg
-MECH-003,Caster Wheel,Mechanical,MECH-003_Caster-Wheel_HowItWorks.svg
-MECH-004,M3 Screw Nut Spacer Set,Mechanical,MECH-004_M3-Screw-Nut-Spacer-Set_HowItWorks.svg
-BASIC-001,220 Ohm Resistor,Basic Electronics,BASIC-001_220-Ohm-Resistor_HowItWorks.svg
-BASIC-002,10k Ohm Resistor,Basic Electronics,BASIC-002_10k-Ohm-Resistor_HowItWorks.svg
-BASIC-003,2N2222 NPN Transistor,Basic Electronics,BASIC-003_2N2222-NPN-Transistor_HowItWorks.svg
-BASIC-004,1N4007 Diode,Basic Electronics,BASIC-004_1N4007-Diode_HowItWorks.svg
-COM-001,HC-05 Bluetooth Module,Communication,COM-001_HC-05-Bluetooth-Module_HowItWorks.svg
+OUT-002,RGB LED,Outputs,OUT-002_RGB-LED_HowItWorks.jpg
+OUT-003,Active Buzzer,Outputs,OUT-003_Active-Buzzer_HowItWorks.jpg
+OUT-004,0.96 OLED I2C,Outputs,OUT-004_0.96-OLED-I2C_HowItWorks.jpg
+OUT-005,16x2 I2C LCD,Outputs,OUT-005_16x2-I2C-LCD_HowItWorks.jpg
+OUT-006,1-Channel Relay Module,Outputs,OUT-006_1-Channel-Relay-Module_HowItWorks.jpg
+IN-001,Tactile Push Button,Inputs,IN-001_Tactile-Push-Button_HowItWorks.jpg
+IN-002,10k Potentiometer,Inputs,IN-002_10k-Potentiometer_HowItWorks.jpg
+IN-003,Joystick Module,Inputs,IN-003_Joystick-Module_HowItWorks.jpg
+CON-001,830-Point Breadboard,Connections,CON-001_830-Point-Breadboard_HowItWorks.jpg
+CON-002,Male-Male Jumper Wires,Connections,CON-002_Male-Male-Jumper-Wires_HowItWorks.jpg
+CON-003,Male-Female Jumper Wires,Connections,CON-003_Male-Female-Jumper-Wires_HowItWorks.jpg
+CON-004,Female-Female Jumper Wires,Connections,CON-004_Female-Female-Jumper-Wires_HowItWorks.jpg
+CON-005,USB Data Cable,Connections,CON-005_USB-Data-Cable_HowItWorks.jpg
+MECH-001,2WD Robot Chassis,Mechanical,MECH-001_2WD-Robot-Chassis_HowItWorks.jpg
+MECH-002,Robot Wheel,Mechanical,MECH-002_Robot-Wheel_HowItWorks.jpg
+MECH-003,Caster Wheel,Mechanical,MECH-003_Caster-Wheel_HowItWorks.jpg
+MECH-004,M3 Screw Nut Spacer Set,Mechanical,MECH-004_M3-Screw-Nut-Spacer-Set_HowItWorks.jpg
+BASIC-001,220 Ohm Resistor,Basic Electronics,BASIC-001_220-Ohm-Resistor_HowItWorks.jpg
+BASIC-002,10k Ohm Resistor,Basic Electronics,BASIC-002_10k-Ohm-Resistor_HowItWorks.jpg
+BASIC-003,2N2222 NPN Transistor,Basic Electronics,BASIC-003_2N2222-NPN-Transistor_HowItWorks.jpg
+BASIC-004,1N4007 Diode,Basic Electronics,BASIC-004_1N4007-Diode_HowItWorks.jpg
+COM-001,HC-05 Bluetooth Module,Communication,COM-001_HC-05-Bluetooth-Module_HowItWorks.jpg
 COM-002,NRF24L01 Module,Communication,COM-002_NRF24L01-Module_HowItWorks.jpg
 COM-003,RC522 RFID Module,Communication,COM-003_RC522-RFID-Module_HowItWorks.jpg
 TOOL-001,Digital Multimeter,Tools,TOOL-001_Digital-Multimeter_HowItWorks.jpg
