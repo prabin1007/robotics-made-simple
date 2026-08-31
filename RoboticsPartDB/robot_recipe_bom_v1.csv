@@ -1,0 +1,15 @@
+recipe_id,slot_id,role,part_id,qty,required,reason
+ANIMALOID-DOG-2WD-VOICE-V1,BRAIN,Brain,CTRL-001,1,Yes,Runs the fixed movement instructions
+ANIMALOID-DOG-2WD-VOICE-V1,MOTOR_LEFT,Left muscle,MOT-001,2,Yes,Moves the wheeled dog
+ANIMALOID-DOG-2WD-VOICE-V1,POWER_MANAGER,Motor power manager,DRV-001,1,Yes,Controls both motors from the Arduino
+ANIMALOID-DOG-2WD-VOICE-V1,ENERGY,Energy,PWR-001,1,Yes,Provides low-voltage power for the beginner build
+ANIMALOID-DOG-2WD-VOICE-V1,VOICE_LINK,Phone command link,COM-001,1,Yes,Receives the command recognised by the phone
+ANIMALOID-DOG-2WD-VOICE-V1,PROTOTYPE_BOARD,Connection board,CON-001,1,Yes,Holds temporary beginner wiring
+ANIMALOID-DOG-2WD-VOICE-V1,WIRE_MM,Board wiring,CON-002,10,Yes,Connects breadboard and Arduino points
+ANIMALOID-DOG-2WD-VOICE-V1,WIRE_MF,Module wiring,CON-003,10,Yes,Connects modules to Arduino or breadboard
+ANIMALOID-DOG-2WD-VOICE-V1,PROGRAM_CABLE,Programming cable,CON-005,1,Yes,Loads the Arduino program
+ANIMALOID-DOG-2WD-VOICE-V1,CHASSIS,Hidden-wheel structure,MECH-001,1,Yes,Holds the moving parts below the dog-shaped body
+ANIMALOID-DOG-2WD-VOICE-V1,WHEELS,Wheels,MECH-002,2,Yes,Fits the selected BO motors
+ANIMALOID-DOG-2WD-VOICE-V1,CASTER,Balance wheel,MECH-003,1,Yes,Supports and balances the 2WD chassis
+ANIMALOID-DOG-2WD-VOICE-V1,FASTENERS,Fasteners,MECH-004,1,Yes,Secures boards and chassis parts
+ANIMALOID-DOG-2WD-VOICE-V1,SCREWDRIVER,Assembly tool,TOOL-002,1,Yes,Assembles the chassis and fasteners

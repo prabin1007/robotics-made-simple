@@ -91,12 +91,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3454,
+                  "duration": 953,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:29.995Z",
+                  "startTime": "2026-08-31T07:57:58.044Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -125,12 +125,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1461,
+                  "duration": 1004,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:34.254Z",
+                  "startTime": "2026-08-31T07:57:59.926Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -159,12 +159,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3706,
+                  "duration": 3889,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:35.732Z",
+                  "startTime": "2026-08-31T07:58:00.963Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -193,12 +193,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3123,
+                  "duration": 2733,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:39.457Z",
+                  "startTime": "2026-08-31T07:58:04.933Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -212,7 +212,7 @@
           "column": 1
         },
         {
-          "title": "MATCH-01 Basic movement returns complete base plan",
+          "title": "RECIPE-01 Dog voice-direction request is an exact recipe match",
           "ok": true,
           "tags": [],
           "tests": [
@@ -227,12 +227,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3776,
+                  "duration": 2770,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:42.597Z",
+                  "startTime": "2026-08-31T07:58:07.738Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -240,13 +240,13 @@
               "status": "expected"
             }
           ],
-          "id": "32bf994bf2d9120039c3-d11a792597ae86346376",
+          "id": "32bf994bf2d9120039c3-f9359e79cce246bf8ec7",
           "file": "v1-core.spec.js",
           "line": 51,
           "column": 1
         },
         {
-          "title": "MATCH-02 Voice command adds Bluetooth module",
+          "title": "RECIPE-02 Short distance wording does not add an obstacle sensor",
           "ok": true,
           "tags": [],
           "tests": [
@@ -261,12 +261,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3517,
+                  "duration": 2863,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:46.387Z",
+                  "startTime": "2026-08-31T07:58:10.545Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -274,13 +274,13 @@
               "status": "expected"
             }
           ],
-          "id": "32bf994bf2d9120039c3-0f1a4328e16198debdb9",
+          "id": "32bf994bf2d9120039c3-2f66f217db1914231a12",
           "file": "v1-core.spec.js",
-          "line": 57,
+          "line": 59,
           "column": 1
         },
         {
-          "title": "MATCH-03 Obstacle avoidance adds ultrasonic sensor",
+          "title": "RECIPE-03 Extra dog behaviour produces a partial recipe match",
           "ok": true,
           "tags": [],
           "tests": [
@@ -295,12 +295,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2728,
+                  "duration": 1662,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:49.922Z",
+                  "startTime": "2026-08-31T07:58:13.463Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -308,9 +308,9 @@
               "status": "expected"
             }
           ],
-          "id": "32bf994bf2d9120039c3-c0f22d19f3352b83fbaf",
+          "id": "32bf994bf2d9120039c3-0a1d92ffb83df78a8afa",
           "file": "v1-core.spec.js",
-          "line": 64,
+          "line": 66,
           "column": 1
         },
         {
@@ -329,12 +329,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2714,
+                  "duration": 3307,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:52.665Z",
+                  "startTime": "2026-08-31T07:58:15.193Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -344,7 +344,7 @@
           ],
           "id": "32bf994bf2d9120039c3-1ec6a0504dcab6781a1e",
           "file": "v1-core.spec.js",
-          "line": 70,
+          "line": 74,
           "column": 1
         },
         {
@@ -363,12 +363,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3219,
+                  "duration": 2513,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:55.393Z",
+                  "startTime": "2026-08-31T07:58:18.546Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -378,7 +378,7 @@
           ],
           "id": "32bf994bf2d9120039c3-ae64783cf329e13c6ca4",
           "file": "v1-core.spec.js",
-          "line": 78,
+          "line": 82,
           "column": 1
         },
         {
@@ -397,12 +397,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2151,
+                  "duration": 2161,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:28:58.629Z",
+                  "startTime": "2026-08-31T07:58:21.103Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -412,7 +412,7 @@
           ],
           "id": "32bf994bf2d9120039c3-5b10901d03019e6032fd",
           "file": "v1-core.spec.js",
-          "line": 84,
+          "line": 90,
           "column": 1
         },
         {
@@ -431,12 +431,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4315,
+                  "duration": 2407,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:29:00.793Z",
+                  "startTime": "2026-08-31T07:58:23.317Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -446,7 +446,7 @@
           ],
           "id": "32bf994bf2d9120039c3-558a1f8c432aefe44b39",
           "file": "v1-core.spec.js",
-          "line": 90,
+          "line": 96,
           "column": 1
         },
         {
@@ -465,12 +465,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3001,
+                  "duration": 5138,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:29:05.122Z",
+                  "startTime": "2026-08-31T07:58:25.765Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -480,7 +480,7 @@
           ],
           "id": "32bf994bf2d9120039c3-3849c94b94eaa6b6c228",
           "file": "v1-core.spec.js",
-          "line": 97,
+          "line": 103,
           "column": 1
         },
         {
@@ -499,12 +499,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3273,
+                  "duration": 2939,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:29:08.139Z",
+                  "startTime": "2026-08-31T07:58:30.962Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -514,7 +514,7 @@
           ],
           "id": "32bf994bf2d9120039c3-ccf2602dac79fd96ae11",
           "file": "v1-core.spec.js",
-          "line": 106,
+          "line": 112,
           "column": 1
         },
         {
@@ -533,12 +533,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4549,
+                  "duration": 4292,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:29:11.424Z",
+                  "startTime": "2026-08-31T07:58:33.933Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -548,7 +548,75 @@
           ],
           "id": "32bf994bf2d9120039c3-d4f072f37611724f3228",
           "file": "v1-core.spec.js",
-          "line": 115,
+          "line": 121,
+          "column": 1
+        },
+        {
+          "title": "BUY-01 Buying result includes explanations, guides, searches, and prerequisites",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3938,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-31T07:58:38.260Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "32bf994bf2d9120039c3-edc955ae2edbb496825a",
+          "file": "v1-core.spec.js",
+          "line": 128,
+          "column": 1
+        },
+        {
+          "title": "CONCLUSION-01 Result closes with current-record guidance, not a validation claim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2910,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-31T07:58:42.249Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "32bf994bf2d9120039c3-5dfb188867a0b7a840e9",
+          "file": "v1-core.spec.js",
+          "line": 141,
           "column": 1
         },
         {
@@ -567,12 +635,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4870,
+                  "duration": 1874,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-30T18:29:15.987Z",
+                  "startTime": "2026-08-31T07:58:45.206Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -582,7 +650,7 @@
           ],
           "id": "32bf994bf2d9120039c3-fc6b8cbcb543270b53b5",
           "file": "v1-core.spec.js",
-          "line": 122,
+          "line": 149,
           "column": 1
         }
       ]
@@ -590,9 +658,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-08-30T18:28:23.299Z",
-    "duration": 64768.401,
-    "expected": 15,
+    "startTime": "2026-08-31T07:57:48.228Z",
+    "duration": 62772.98,
+    "expected": 17,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

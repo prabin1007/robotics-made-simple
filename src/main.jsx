@@ -213,6 +213,17 @@ function App() {
             <div className="brief-strip">
               <div><span>PROJECT</span><strong>{submitted.project}</strong></div><div><span>BEHAVIOUR</span><strong>{submitted.behaviors}</strong></div><div><span>PLACE / BUDGET</span><strong>{submitted.country} · {submitted.budget}</strong></div>
             </div>
+            <section className={`recipe-match recipe-${plan.matchType}`} aria-label="Dog recipe match result">
+              <div>
+                <span>{plan.matchType === 'exact' ? 'Exact recipe match' : plan.matchType === 'partial' ? 'Partial recipe match' : 'No dog recipe match'}</span>
+                <h3>{plan.recipe.name}</h3>
+                <p>{plan.matchType === 'exact' ? plan.recipe.supportedOutcome : plan.matchType === 'partial' ? 'The fixed dog BOM covers only the recipe outcome below. Requested differences must be checked before buying.' : 'This request is outside the one recipe available in V1, so no parts list is shown.'}</p>
+              </div>
+              <dl>
+                <div><dt>Recipe</dt><dd>{plan.recipe.id}</dd></div>
+                <div><dt>Platform</dt><dd>{plan.recipe.platform}</dd></div>
+              </dl>
+            </section>
             <div className="disclosure" role="note"><b>Database-guided demo—not live AI, live prices, or verified buying advice.</b><span>Check specifications with an adult before buying, connecting, or powering hardware.</span></div>
             {plan.isPartial ? (
               <section className="partial-plan" role="alert" aria-labelledby="partial-plan-title">
@@ -251,11 +262,12 @@ function App() {
             </div>
             <div className="parts-list">
               {parts.map((part, index) => (
-                <article className="part-card" key={part.part_id}>
+                <article className="part-card" id={`part-${part.part_id}`} key={part.part_id}>
                   <div className="part-index">{String(index + 1).padStart(2, '0')}</div><div className="part-icon" aria-hidden="true">{part.category.slice(0, 1)}</div>
                   <div className="part-copy">
-                    <span className="part-group">{part.category} · Qty {part.usual_qty}</span><h3>{part.part_name}</h3>
+                    <span className="part-group">{part.recipeRole ? `${part.recipeRole} · ` : ''}{part.category} · Qty {part.usual_qty}</span><h3>{part.part_name}</h3>
                     <p><strong>{part.kid_friendly_name}.</strong> {part.what_it_does}.</p>
+                    {part.recipeReason ? <p className="recipe-reason"><strong>Why this recipe needs it:</strong> {part.recipeReason}.</p> : null}
                     <PartMetaphor part={part} />
                     <PartTutorial part={part} />
                     <div className="part-facts"><span>{part.skill_level}</span><span>{part.voltage}</span><span>{part.compatible_with}</span></div>
@@ -272,7 +284,7 @@ function App() {
               ))}
             </div>
             <section className="summary-card" aria-labelledby="summary-title">
-              <div><p className="step-label">03 / Take the next step</p><h2 id="summary-title">Your “Need” list</h2>{neededParts.length ? <><ul>{neededParts.map((part) => <li key={part.part_id}>{part.usual_qty} × {part.part_name} <span>· ₹{inr.format(part.priceEstimate.typical)} estimate</span></li>)}</ul><div className={`budget-check budget-${budgetComparison.state}`} role="status"><span>SELECTED-PARTS ESTIMATE</span><strong>₹{inr.format(selectedPriceTotal.typical)}</strong><p>Combined range: ₹{inr.format(selectedPriceTotal.min)}–₹{inr.format(selectedPriceTotal.max)}</p><b>{budgetComparison.text}</b>{selectedPriceTotal.missing ? <small>{selectedPriceTotal.missing} selected item(s) have no estimate and are excluded.</small> : null}</div><p className="price-assumption">Assumption: each CSV school-project price covers one listed purchase line, including the displayed quantity or pack. These are tentative India estimates, not a checkout total.</p></> : <p className="empty-summary">{allPartsMarked ? 'You already have every listed part. Nothing needs to be bought for this plan.' : 'Mark parts above as “Need” and they will appear here with an estimated total.'}</p>}</div>
+              <div><p className="step-label">03 / Take the next step</p><h2 id="summary-title">Your “Need” list</h2>{neededParts.length ? <><ul className="need-list">{neededParts.map((part) => <li key={part.part_id}><strong>{part.usual_qty} × {part.part_name}</strong><small className="need-list-purpose">{part.recipeReason}</small><span>₹{inr.format(part.priceEstimate.typical)} estimate</span><a href={`#part-${part.part_id}`}>Purpose, guide and buying searches ↑</a></li>)}</ul><div className={`budget-check budget-${budgetComparison.state}`} role="status"><span>SELECTED-PARTS ESTIMATE</span><strong>₹{inr.format(selectedPriceTotal.typical)}</strong><p>Combined range: ₹{inr.format(selectedPriceTotal.min)}–₹{inr.format(selectedPriceTotal.max)}</p><b>{budgetComparison.text}</b>{selectedPriceTotal.missing ? <small>{selectedPriceTotal.missing} selected item(s) have no estimate and are excluded.</small> : null}</div><p className="price-assumption">Assumption: each CSV school-project price covers one listed purchase line, including the displayed quantity or pack. These are tentative India estimates, not a checkout total.</p></> : <p className="empty-summary">{allPartsMarked ? 'You already have every listed part. Nothing needs to be bought for this plan.' : 'Mark parts above as “Need” and they will appear here with an estimated total.'}</p>}<section className="build-prerequisites" aria-labelledby="prerequisites-title"><span>REQUIRED BUT NOT IN THE PARTS TOTAL</span><h3 id="prerequisites-title">Have these before building</h3><ul>{plan.recipe.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></section></div>
               <div className="first-stage"><span>FIRST BUILD STAGE</span><strong>Make the wheels move safely</strong><p>Before adding sensors or voice, connect the controller, motor driver, motors, and low-voltage power with an adult.</p></div>
             </section>
             {localStores.length ? (
@@ -286,6 +298,7 @@ function App() {
               <div className="feedback-actions"><button type="button" className={feedback === 'useful' ? 'active' : ''} onClick={() => setFeedback('useful')}>Yes, useful</button><button type="button" className={feedback === 'needs-work' ? 'active' : ''} onClick={() => setFeedback('needs-work')}>Needs work</button></div>
               {feedback ? <p className="feedback-confirmation" role="status">Recorded for this demo: {feedback === 'useful' ? 'useful' : 'needs work'}.</p> : null}
             </section>
+            <aside className="record-conclusion" role="note"><strong>Based on our current records</strong><p>This plan should help you start the voice-controlled dog animaloid. Part details and prices can change, so check the listed specifications with an adult before buying, connecting, or powering anything.</p></aside>
           </section>
         ) : null}
       </main>

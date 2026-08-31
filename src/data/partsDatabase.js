@@ -1,6 +1,8 @@
 import partsCsv from '../../RoboticsPartDB/robotics_parts_directory_v5_school_project_prices.csv?raw';
 import offersCsv from '../../RoboticsPartDB/robotics_online_offers_v5_school_project_prices.csv?raw';
 import storesCsv from '../../RoboticsPartDB/robotics_local_stores_bengaluru_v5_school_project_prices.csv?raw';
+import recipesCsv from '../../RoboticsPartDB/robot_recipes_v1.csv?raw';
+import recipeBomCsv from '../../RoboticsPartDB/robot_recipe_bom_v1.csv?raw';
 import howItWorksCsv from './howItWorksIndex.csv?raw';
 
 function parseCsv(text) {
@@ -43,6 +45,8 @@ function parseCsv(text) {
 const parts = parseCsv(partsCsv);
 const offers = parseCsv(offersCsv);
 const stores = parseCsv(storesCsv);
+const recipes = parseCsv(recipesCsv);
+const recipeBom = parseCsv(recipeBomCsv);
 const tutorials = parseCsv(howItWorksCsv);
 const partsById = new Map(parts.map((part) => [part.part_id, part]));
 const tutorialsByPart = new Map(tutorials.map((tutorial) => [tutorial.part_id, tutorial]));
@@ -54,62 +58,64 @@ for (const offer of offers) {
   offersByPart.set(offer.part_id, current);
 }
 
-const BASE_PART_IDS = [
-  'CTRL-001', 'MOT-001', 'DRV-001', 'PWR-001',
-  'CON-001', 'CON-002', 'CON-003', 'CON-005',
-  'MECH-001', 'MECH-002', 'MECH-003', 'MECH-004', 'TOOL-002',
-];
+const DOG_RECIPE_ID = 'ANIMALOID-DOG-2WD-VOICE-V1';
+const dogRecipe = recipes.find((recipe) => recipe.recipe_id === DOG_RECIPE_ID);
+const dogRecipeBom = recipeBom.filter((row) => row.recipe_id === DOG_RECIPE_ID);
 
-const FEATURE_RULES = [
-  { words: ['avoid', 'obstacle', 'distance', 'near'], partId: 'SNS-001' },
-  { words: ['line follow', 'follow line', 'track line'], partId: 'SNS-003' },
-  { words: ['light', 'dark'], partId: 'SNS-004' },
-  { words: ['temperature', 'humidity'], partId: 'SNS-005' },
-  { words: ['motion', 'movement detector'], partId: 'SNS-006' },
-  { words: ['sound', 'clap', 'noise'], partId: 'SNS-008' },
-  { words: ['tilt', 'gesture', 'rotation'], partId: 'SNS-009' },
-  { words: ['display', 'show text', 'screen'], partId: 'OUT-005' },
-  { words: ['beep', 'buzzer', 'alarm'], partId: 'OUT-003' },
+const EXTRA_CAPABILITIES = [
+  { label: 'Obstacle avoidance', words: ['avoid obstacle', 'avoid obstacles', 'obstacle avoidance'] },
+  { label: 'Line following', words: ['line follow', 'follow line', 'track line'] },
+  { label: 'Thermal or object-temperature sensing', words: ['thermal', 'heat source', 'warm object', 'object temperature'] },
+  { label: 'Face recognition', words: ['recognise face', 'recognize face', 'face recognition'] },
+  { label: 'GPS location', words: ['gps', 'location tracking', 'send location'] },
+  { label: 'Person following', words: ['follow person', 'follow a person', 'human follow'] },
+  { label: 'Walking legs', words: ['walking legs', 'walk on legs', 'four legs', 'quadruped', 'biped'] },
 ];
-
-const SUPPORTED_BEHAVIOURS = [
-  ['move', 'drive', 'forward', 'backward', 'reverse', 'left', 'right', 'turn', 'stop', 'wheel'],
-  ['avoid', 'obstacle', 'distance', 'near'],
-  ['line follow', 'follow line', 'track line'],
-  ['light', 'dark'],
-  ['temperature', 'humidity'],
-  ['motion', 'movement detector'],
-  ['sound', 'clap', 'noise'],
-  ['tilt', 'gesture', 'rotation'],
-  ['display', 'show text', 'screen'],
-  ['beep', 'buzzer', 'alarm'],
-  ['voice', 'speak', 'spoken', 'hear', 'command', 'listen', 'instruction'],
-  ['follow person', 'follow a person', 'human follow'],
-];
-
-const UNSUPPORTED_PLATFORMS = ['fly', 'flying', 'drone', 'airborne', 'swim', 'underwater', 'boat', 'walking legs', 'walk on legs', 'biped'];
 
 function hasAny(text, words) {
   return words.some((word) => text.includes(word));
 }
 
-function findUnsupportedRequirements(brief) {
-  const requirements = brief.behaviors
-    .split(/\r?\n|[,;.]+|\b(?:and then|then|and|but)\b/i)
-    .map((requirement) => requirement.trim())
-    .filter(Boolean);
+function describeRecipe(recipe) {
+  if (!recipe) return null;
+  return {
+    id: recipe.recipe_id,
+    name: recipe.recipe_name,
+    version: recipe.version,
+    platform: recipe.platform,
+    supportedOutcome: recipe.supported_outcome,
+    prerequisites: recipe.prerequisites.split('|').filter(Boolean),
+  };
+}
 
-  const unsupported = requirements.filter((requirement) => {
-    const normalised = requirement.toLowerCase();
-    return !SUPPORTED_BEHAVIOURS.some((words) => hasAny(normalised, words));
-  });
+function matchDogRecipe(brief) {
+  const projectText = brief.project.toLowerCase();
+  const behaviourText = brief.behaviors.toLowerCase();
+  const isDogProject = hasAny(projectText, ['dog', 'puppy', 'canine']);
 
-  const projectText = `${brief.project} ${brief.behaviors}`.toLowerCase();
-  if (hasAny(projectText, UNSUPPORTED_PLATFORMS)) {
-    unsupported.unshift('This V1 supports ground robots with wheels, not flying, swimming, or walking-leg robots');
+  if (!isDogProject) {
+    return {
+      matchType: 'none',
+      unsupportedRequirements: ['The only V1 recipe is a dog-shaped robot with hidden wheels and phone-assisted left/right commands.'],
+      extraCapabilities: [],
+    };
   }
 
-  return [...new Set(unsupported)];
+  const hasVoice = hasAny(behaviourText, ['voice', 'spoken', 'hear', 'listen', 'say', 'command']);
+  const hasDirection = hasAny(behaviourText, ['left', 'right', 'direction']);
+  const extraCapabilities = EXTRA_CAPABILITIES
+    .filter((capability) => hasAny(`${projectText} ${behaviourText}`, capability.words))
+    .map((capability) => capability.label);
+  const unsupportedRequirements = [...extraCapabilities];
+
+  if (!hasVoice) unsupportedRequirements.unshift('Phone-assisted voice control is not clearly requested.');
+  if (!hasDirection) unsupportedRequirements.unshift('A left or right movement command is not clearly requested.');
+
+  return {
+    matchType: unsupportedRequirements.length ? 'partial' : 'exact',
+    unsupportedRequirements: [...new Set(unsupportedRequirements)],
+    extraCapabilities,
+  };
 }
 
 function decoratePart(part) {
@@ -159,34 +165,23 @@ export function isBengaluruLocation(location = '') {
 }
 
 export function buildPartsPlan(brief) {
-  const text = `${brief.project} ${brief.behaviors}`.toLowerCase();
-  const requestsObjectTemperature = hasAny(text, ['thermal', 'heat source', 'warm object', 'object temperature']);
-  const selectedIds = new Set(BASE_PART_IDS);
+  const recipeMatch = matchDogRecipe(brief);
   const notes = [];
   const gaps = [];
-  const unsupportedRequirements = findUnsupportedRequirements(brief);
-
-  for (const rule of FEATURE_RULES) {
-    if (rule.partId === 'SNS-005') {
-      const requestsAirTemperatureOrHumidity = text.includes('humidity')
-        || (text.includes('temperature') && !requestsObjectTemperature);
-      if (requestsAirTemperatureOrHumidity) selectedIds.add(rule.partId);
-    } else if (hasAny(text, rule.words)) {
-      selectedIds.add(rule.partId);
+  const selectedParts = recipeMatch.matchType === 'none' ? [] : dogRecipeBom.map((bomRow) => {
+    const part = partsById.get(bomRow.part_id);
+    if (!part) {
+      gaps.push(`Recipe slot ${bomRow.slot_id} refers to missing part ${bomRow.part_id}.`);
+      return null;
     }
-  }
+    return decoratePart({ ...part, usual_qty: bomRow.qty, recipeRole: bomRow.role, recipeReason: bomRow.reason });
+  }).filter(Boolean);
 
-  if (hasAny(text, ['voice', 'speak', 'spoken', 'hear', 'command', 'listen', 'instruction'])) {
-    selectedIds.add('COM-001');
+  if (recipeMatch.matchType !== 'none') {
     notes.push('Voice route in this catalogue: a phone recognises the spoken word, then sends a command through the HC-05 Bluetooth module. The database does not yet contain a standalone word-recognition module.');
   }
 
-  if (hasAny(text, ['follow person', 'follow a person', 'human follow'])) {
-    selectedIds.add('SNS-001');
-    notes.push('The HC-SR04 can follow distance to the nearest object; it cannot confirm that the object is a person.');
-  }
-
-  if (requestsObjectTemperature) {
+  if (recipeMatch.extraCapabilities.includes('Thermal or object-temperature sensing')) {
     gaps.push('The expanded catalogue contains thermal-camera options, but this V1 cannot safely choose the exact camera, computer and power setup for a beginner build. DHT11 is not a substitute because it measures nearby air.');
   }
 
@@ -201,11 +196,13 @@ export function buildPartsPlan(brief) {
   notes.push(`The budget is ${brief.budget}. Price ranges are planning estimates dated ${parts[0]?.price_as_of || 'in the catalogue'}, not live quotes or stock confirmations.`);
 
   return {
-    parts: [...selectedIds].map((partId) => partsById.get(partId)).filter(Boolean).map(decoratePart),
+    recipe: describeRecipe(dogRecipe),
+    matchType: recipeMatch.matchType,
+    parts: selectedParts,
     notes,
     gaps,
-    unsupportedRequirements,
-    isPartial: unsupportedRequirements.length > 0 || gaps.length > 0,
+    unsupportedRequirements: recipeMatch.unsupportedRequirements,
+    isPartial: recipeMatch.matchType !== 'exact' || gaps.length > 0,
   };
 }
 
