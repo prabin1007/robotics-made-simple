@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import { ConvexProvider, ConvexReactClient, useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import './styles.css';
 import { buildPartsPlan, databaseStats, getLocalStores, isBengaluruLocation } from './data/partsDatabase';
 
 const DEFAULT_BRIEF = { project: '', behaviors: '', country: 'Bangalore, India', budget: '' };
 const inr = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 
 function parseBudgetRange(value) {
   const amounts = (value.match(/\d[\d,]*(?:\.\d+)?\s*[kK]?/g) ?? [])
@@ -116,17 +119,47 @@ function PartTutorial({ part }) {
   );
 }
 
+function useMobileLayout() {
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 600px)').matches);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 600px)');
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  return isMobile;
+}
+
+function OwnershipChoices({ part, value, onChange, className = '' }) {
+  return <fieldset className={`ownership ${className}`.trim()}><legend>Do you own this?</legend>{[['have', 'Already have'], ['need', 'Need']].map(([choice, label]) => <label className={value === choice ? 'selected' : ''} key={choice}><input type="radio" name={`choice-${part.part_id}`} checked={value === choice} onChange={() => onChange(choice)} />{label}</label>)}</fieldset>;
+}
+
+function PartDetails({ part }) {
+  return <><p><strong>{part.kid_friendly_name}.</strong> {part.what_it_does}.</p>{part.recipeReason ? <p className="recipe-reason"><strong>Why this recipe needs it:</strong> {part.recipeReason}.</p> : null}<PartMetaphor part={part} /><PartTutorial part={part} /><div className="part-facts"><span>{part.skill_level}</span><span>{part.voltage}</span><span>{part.compatible_with}</span></div><div className="part-price-estimate"><strong>Planning estimate: ₹{inr.format(part.priceEstimate.typical)}</strong><span>Range ₹{inr.format(part.priceEstimate.min)}–₹{inr.format(part.priceEstimate.max)} · {part.priceEstimate.confidence} confidence · dated {part.priceEstimate.asOf}</span></div><details><summary>What to check before buying</summary><p><b>Common mistake:</b> {part.common_mistake}. <b>Safety:</b> {part.safety_note}.</p></details>{part.priceLead ? <p className="price-lead">Price lead: ₹{part.priceLead.price_inr} from {part.priceLead.seller}, checked {part.priceLead.checked_date}. Not a live price or direct product link.</p> : null}<div className="buy-searches">{part.searchLinks.map((link) => <a href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label} <span aria-hidden="true">↗</span></a>)}</div></>;
+}
+
+function FirstBuildStage({ className = '' }) {
+  return <div className={`first-stage ${className}`.trim()}><span>FIRST BUILD STAGE</span><strong>Make the wheels move safely</strong><p>Before adding sensors or voice, connect the controller, motor driver, motors, and low-voltage power with an adult.</p></div>;
+}
+
 function App() {
   const [brief, setBrief] = useState({ ...DEFAULT_BRIEF });
   const [submitted, setSubmitted] = useState(null);
   const [choices, setChoices] = useState({});
   const [feedback, setFeedback] = useState('');
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState('idle');
+  const [feedbackError, setFeedbackError] = useState('');
+  const submitFeedback = useMutation(api.feedback.submit);
   const [error, setError] = useState('');
+  const isMobile = useMobileLayout();
   const plan = useMemo(() => submitted ? buildPartsPlan(submitted) : null, [submitted]);
   const parts = plan?.parts ?? [];
   const localStores = submitted ? getLocalStores(submitted.country) : [];
   const neededParts = parts.filter((part) => choices[part.part_id] === 'need');
   const selectedPriceTotal = useMemo(() => totalSelectedPrices(neededParts), [neededParts]);
+  const fullPlanPriceTotal = useMemo(() => totalSelectedPrices(parts), [parts]);
   const budgetComparison = submitted && neededParts.length ? compareWithBudget(selectedPriceTotal.typical, submitted.budget) : null;
   const allPartsNeeded = parts.length > 0 && parts.every((part) => choices[part.part_id] === 'need');
   const allPartsMarked = parts.length > 0 && parts.every((part) => Boolean(choices[part.part_id]));
@@ -147,7 +180,15 @@ function App() {
     setSubmitted(null);
     setChoices({});
     setFeedback('');
+    setFeedbackComment('');
+    setFeedbackStatus('idle');
+    setFeedbackError('');
     setError('');
+  }
+
+  function startNewPlan() {
+    resetBrief();
+    requestAnimationFrame(() => document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
 
   function createPlan(event) {
@@ -156,17 +197,47 @@ function App() {
       setError('Complete all four answers before creating the parts plan.');
       return;
     }
-    setSubmitted({ ...brief }); setChoices({}); setFeedback('');
+    setSubmitted({ ...brief }); setChoices({}); setFeedback(''); setFeedbackComment(''); setFeedbackStatus('idle'); setFeedbackError('');
     requestAnimationFrame(() => document.getElementById('plan')?.scrollIntoView({ behavior: 'smooth' }));
   }
 
   function editBrief() {
-    setSubmitted(null); setChoices({}); setFeedback('');
+    setSubmitted(null); setChoices({}); setFeedback(''); setFeedbackComment(''); setFeedbackStatus('idle'); setFeedbackError('');
     requestAnimationFrame(() => document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' }));
   }
 
   function markAllPartsNeeded() {
     setChoices(Object.fromEntries(parts.map((part) => [part.part_id, 'need'])));
+  }
+
+  function chooseFeedback(value) {
+    setFeedback(value);
+    setFeedbackStatus('idle');
+    setFeedbackError('');
+  }
+
+  async function saveFeedback(event) {
+    event.preventDefault();
+    if (!feedback || !submitted || !plan) return;
+    setFeedbackStatus('saving');
+    setFeedbackError('');
+    try {
+      await submitFeedback({
+        rating: feedback,
+        comment: feedbackComment.trim() || undefined,
+        project: submitted.project,
+        behaviors: submitted.behaviors,
+        location: submitted.country,
+        budget: submitted.budget,
+        recipeId: plan.recipe.id,
+        matchType: plan.matchType,
+        neededPartsCount: neededParts.length,
+      });
+      setFeedbackStatus('saved');
+    } catch {
+      setFeedbackStatus('error');
+      setFeedbackError('Your feedback was not saved. Please check your connection and try again.');
+    }
   }
 
   return (
@@ -216,13 +287,9 @@ function App() {
             <section className={`recipe-match recipe-${plan.matchType}`} aria-label="Dog recipe match result">
               <div>
                 <span>{plan.matchType === 'exact' ? 'Exact recipe match' : plan.matchType === 'partial' ? 'Partial recipe match' : 'No dog recipe match'}</span>
-                <h3>{plan.recipe.name}</h3>
+                <h3>{plan.matchType === 'exact' ? 'We found a matching build guide for your requirement.' : plan.matchType === 'partial' ? 'We found a build guide that covers part of your requirement.' : 'We do not have a matching build guide yet.'}</h3>
                 <p>{plan.matchType === 'exact' ? plan.recipe.supportedOutcome : plan.matchType === 'partial' ? 'The fixed dog BOM covers only the recipe outcome below. Requested differences must be checked before buying.' : 'This request is outside the one recipe available in V1, so no parts list is shown.'}</p>
               </div>
-              <dl>
-                <div><dt>Recipe</dt><dd>{plan.recipe.id}</dd></div>
-                <div><dt>Platform</dt><dd>{plan.recipe.platform}</dd></div>
-              </dl>
             </section>
             <div className="disclosure" role="note"><b>Database-guided demo—not live AI, live prices, or verified buying advice.</b><span>Check specifications with an adult before buying, connecting, or powering hardware.</span></div>
             {plan.isPartial ? (
@@ -247,45 +314,38 @@ function App() {
                 </div>
               </section>
             ) : null}
-            {plan.notes.length || plan.gaps.length ? (
-              <div className="plan-notes">
-                {plan.notes.map((note) => <p key={note}><strong>Plan note</strong>{note}</p>)}
-              </div>
+            {plan.notes.length ? <aside className="plan-notes" aria-label="Before you start"><strong>Before you start</strong><ul>{plan.notes.map((note) => <li key={note}>{note}</li>)}</ul></aside> : null}
+            {isMobile && parts.length ? (
+              <section className="mobile-parts-overview" aria-labelledby="mobile-parts-title">
+                <header><div><span>PARTS AT A GLANCE</span><h3 id="mobile-parts-title">Your starting parts</h3></div><strong>₹{inr.format(fullPlanPriceTotal.typical)}<small>listed estimate</small></strong></header>
+                <div className="mobile-parts-table">{parts.map((part, index) => <article className="mobile-part-row" id={`part-${part.part_id}`} key={part.part_id}><span className="mobile-row-index">{String(index + 1).padStart(2, '0')}</span><div className="mobile-row-name"><strong>{part.part_name}</strong><small>{part.recipeRole}</small></div><span className="mobile-row-qty">Qty {part.usual_qty}</span><span className="mobile-row-price">₹{inr.format(part.priceEstimate.typical)}</span><OwnershipChoices part={part} value={choices[part.part_id]} onChange={(value) => setChoices((current) => ({ ...current, [part.part_id]: value }))} className="mobile-ownership" /><details className="mobile-part-details"><summary>Why this part</summary><div className="mobile-part-details-body"><PartDetails part={part} /></div></details></article>)}</div>
+                <FirstBuildStage className="mobile-first-stage" />
+              </section>
             ) : null}
-            <div className="parts-toolbar">
+            <div className="parts-toolbar" id="parts-start">
               <div><strong>{parts.length}</strong><span>{plan.isPartial ? 'parts for the supported start' : 'starting parts'}</span></div>
               <p>Mark every item so your “Need” list is useful.</p>
               <div className="parts-actions">
+                <a href="#need-summary">View Need list <span aria-hidden="true">↓</span></a>
                 <button type="button" onClick={markAllPartsNeeded} disabled={allPartsNeeded}>{allPartsNeeded ? 'All parts marked as needed' : 'I need all parts'}</button>
                 <span className="progress-count">{Object.keys(choices).length}/{parts.length} marked</span>
               </div>
             </div>
-            <div className="parts-list">
+            {!isMobile ? <div className="parts-list">
               {parts.map((part, index) => (
                 <article className="part-card" id={`part-${part.part_id}`} key={part.part_id}>
                   <div className="part-index">{String(index + 1).padStart(2, '0')}</div><div className="part-icon" aria-hidden="true">{part.category.slice(0, 1)}</div>
                   <div className="part-copy">
                     <span className="part-group">{part.recipeRole ? `${part.recipeRole} · ` : ''}{part.category} · Qty {part.usual_qty}</span><h3>{part.part_name}</h3>
-                    <p><strong>{part.kid_friendly_name}.</strong> {part.what_it_does}.</p>
-                    {part.recipeReason ? <p className="recipe-reason"><strong>Why this recipe needs it:</strong> {part.recipeReason}.</p> : null}
-                    <PartMetaphor part={part} />
-                    <PartTutorial part={part} />
-                    <div className="part-facts"><span>{part.skill_level}</span><span>{part.voltage}</span><span>{part.compatible_with}</span></div>
-                    <div className="part-price-estimate">
-                      <strong>Planning estimate: ₹{inr.format(part.priceEstimate.typical)}</strong>
-                      <span>Range ₹{inr.format(part.priceEstimate.min)}–₹{inr.format(part.priceEstimate.max)} · {part.priceEstimate.confidence} confidence · dated {part.priceEstimate.asOf}</span>
-                    </div>
-                    <details><summary>What to check before buying</summary><p><b>Common mistake:</b> {part.common_mistake}. <b>Safety:</b> {part.safety_note}.</p></details>
-                    {part.priceLead ? <p className="price-lead">Price lead: ₹{part.priceLead.price_inr} from {part.priceLead.seller}, checked {part.priceLead.checked_date}. Not a live price or direct product link.</p> : null}
-                    <div className="buy-searches">{part.searchLinks.map((link) => <a href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label} <span aria-hidden="true">↗</span></a>)}</div>
+                    <PartDetails part={part} />
                   </div>
-                  <fieldset className="ownership"><legend>Do you own this?</legend>{[['have', 'Already have'], ['need', 'Need']].map(([value, label]) => <label className={choices[part.part_id] === value ? 'selected' : ''} key={value}><input type="radio" name={`choice-${part.part_id}`} checked={choices[part.part_id] === value} onChange={() => setChoices((current) => ({ ...current, [part.part_id]: value }))} />{label}</label>)}</fieldset>
+                  {!isMobile ? <OwnershipChoices part={part} value={choices[part.part_id]} onChange={(value) => setChoices((current) => ({ ...current, [part.part_id]: value }))} /> : null}
                 </article>
               ))}
-            </div>
-            <section className="summary-card" aria-labelledby="summary-title">
-              <div><p className="step-label">03 / Take the next step</p><h2 id="summary-title">Your “Need” list</h2>{neededParts.length ? <><ul className="need-list">{neededParts.map((part) => <li key={part.part_id}><strong>{part.usual_qty} × {part.part_name}</strong><small className="need-list-purpose">{part.recipeReason}</small><span>₹{inr.format(part.priceEstimate.typical)} estimate</span><a href={`#part-${part.part_id}`}>Purpose, guide and buying searches ↑</a></li>)}</ul><div className={`budget-check budget-${budgetComparison.state}`} role="status"><span>SELECTED-PARTS ESTIMATE</span><strong>₹{inr.format(selectedPriceTotal.typical)}</strong><p>Combined range: ₹{inr.format(selectedPriceTotal.min)}–₹{inr.format(selectedPriceTotal.max)}</p><b>{budgetComparison.text}</b>{selectedPriceTotal.missing ? <small>{selectedPriceTotal.missing} selected item(s) have no estimate and are excluded.</small> : null}</div><p className="price-assumption">Assumption: each CSV school-project price covers one listed purchase line, including the displayed quantity or pack. These are tentative India estimates, not a checkout total.</p></> : <p className="empty-summary">{allPartsMarked ? 'You already have every listed part. Nothing needs to be bought for this plan.' : 'Mark parts above as “Need” and they will appear here with an estimated total.'}</p>}<section className="build-prerequisites" aria-labelledby="prerequisites-title"><span>REQUIRED BUT NOT IN THE PARTS TOTAL</span><h3 id="prerequisites-title">Have these before building</h3><ul>{plan.recipe.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></section></div>
-              <div className="first-stage"><span>FIRST BUILD STAGE</span><strong>Make the wheels move safely</strong><p>Before adding sensors or voice, connect the controller, motor driver, motors, and low-voltage power with an adult.</p></div>
+            </div> : null}
+            <section className="summary-card" id="need-summary" aria-labelledby="summary-title">
+              <div><div className="summary-heading"><div><p className="step-label">03 / Take the next step</p><h2 id="summary-title">Your “Need” list</h2></div><a href="#parts-start">Back to parts <span aria-hidden="true">↑</span></a></div>{neededParts.length ? <><ul className="need-list">{neededParts.map((part) => <li key={part.part_id}><strong>{part.usual_qty} × {part.part_name}</strong><small className="need-list-purpose">{part.recipeReason}</small><span>₹{inr.format(part.priceEstimate.typical)} estimate</span><a href={`#part-${part.part_id}`}>Purpose, guide and buying searches ↑</a></li>)}</ul><div className={`budget-check budget-${budgetComparison.state}`} role="status"><span>SELECTED-PARTS ESTIMATE</span><strong>₹{inr.format(selectedPriceTotal.typical)}</strong><p>Combined range: ₹{inr.format(selectedPriceTotal.min)}–₹{inr.format(selectedPriceTotal.max)}</p><b>{budgetComparison.text}</b>{selectedPriceTotal.missing ? <small>{selectedPriceTotal.missing} selected item(s) have no estimate and are excluded.</small> : null}</div><p className="price-assumption">Assumption: each CSV school-project price covers one listed purchase line, including the displayed quantity or pack. These are tentative India estimates, not a checkout total.</p></> : <p className="empty-summary">{allPartsMarked ? 'You already have every listed part. Nothing needs to be bought for this plan.' : 'Mark parts above as “Need” and they will appear here with an estimated total.'}</p>}<section className="build-prerequisites" aria-labelledby="prerequisites-title"><span>REQUIRED BUT NOT IN THE PARTS TOTAL</span><h3 id="prerequisites-title">Have these before building</h3><ul>{plan.recipe.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></section></div>
+              {!isMobile ? <FirstBuildStage /> : null}
             </section>
             {localStores.length ? (
               <section className="store-section" aria-labelledby="stores-title">
@@ -293,11 +353,13 @@ function App() {
                 <div className="store-grid">{localStores.map((store) => <a href={store.maps_search_url} target="_blank" rel="noreferrer" key={store.store_id}><strong>{store.store_name}</strong><span>{store.category}</span><small>Rating recorded: {store.rating} · checked {store.checked_date}</small></a>)}</div>
               </section>
             ) : null}
-            <section className="feedback-card" aria-labelledby="feedback-title">
-              <div><span className="part-group">One last check</span><h2 id="feedback-title">Did this plan help you understand what you need?</h2></div>
-              <div className="feedback-actions"><button type="button" className={feedback === 'useful' ? 'active' : ''} onClick={() => setFeedback('useful')}>Yes, useful</button><button type="button" className={feedback === 'needs-work' ? 'active' : ''} onClick={() => setFeedback('needs-work')}>Needs work</button></div>
-              {feedback ? <p className="feedback-confirmation" role="status">Recorded for this demo: {feedback === 'useful' ? 'useful' : 'needs work'}.</p> : null}
-            </section>
+            <form className="feedback-card" aria-labelledby="feedback-title" onSubmit={saveFeedback}>
+              <div><span className="part-group">One last check</span><h2 id="feedback-title">Did this plan help you understand what you need?</h2><p>Your answer helps us improve the next parts plan.</p></div>
+              <div className="feedback-actions"><button type="button" className={feedback === 'useful' ? 'active' : ''} onClick={() => chooseFeedback('useful')}>Yes, useful</button><button type="button" className={feedback === 'needs-work' ? 'active' : ''} onClick={() => chooseFeedback('needs-work')}>Needs work</button></div>
+              {feedback ? <><label className="feedback-comment"><span>Anything else you want to tell us? <small>Optional</small></span><textarea value={feedbackComment} onChange={(event) => { setFeedbackComment(event.target.value); setFeedbackStatus('idle'); }} maxLength="1000" rows="3" placeholder="Tell us what was clear, missing, or confusing." /><small>{feedbackComment.length}/1000</small></label><button className="feedback-submit" type="submit" disabled={feedbackStatus === 'saving' || feedbackStatus === 'saved'}>{feedbackStatus === 'saving' ? 'Saving…' : feedbackStatus === 'saved' ? 'Feedback saved' : 'Send feedback'}</button></> : <p className="feedback-help">Choose one answer to add an optional comment.</p>}
+              {feedbackStatus === 'saved' ? <div className="feedback-saved" role="status"><p className="feedback-confirmation">Thank you. Your feedback has been saved.</p><button type="button" onClick={startNewPlan}>Start a new parts plan <span aria-hidden="true">↑</span></button></div> : null}
+              {feedbackError ? <p className="feedback-error" role="alert">{feedbackError}</p> : null}
+            </form>
             <aside className="record-conclusion" role="note"><strong>Based on our current records</strong><p>This plan should help you start the voice-controlled dog animaloid. Part details and prices can change, so check the listed specifications with an adult before buying, connecting, or powering anything.</p></aside>
           </section>
         ) : null}
@@ -307,4 +369,4 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>);
+ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><ConvexProvider client={convex}><App /></ConvexProvider></React.StrictMode>);

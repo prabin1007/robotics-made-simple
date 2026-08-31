@@ -51,7 +51,8 @@ test('LOC-02 Other city warns but still lists parts', async ({ page }) => {
 test('RECIPE-01 Dog voice-direction request is an exact recipe match', async ({ page }) => {
   await submitPlan(page);
   await expect(page.locator('.recipe-match')).toContainText('Exact recipe match');
-  await expect(page.locator('.recipe-match')).toContainText('ANIMALOID-DOG-2WD-VOICE-V1');
+  await expect(page.locator('.recipe-match')).toContainText('We found a matching build guide for your requirement.');
+  await expect(page.locator('.recipe-match')).not.toContainText('ANIMALOID-DOG-2WD-VOICE-V1');
   await expect(page.locator('.part-card')).toHaveCount(14);
   await expect(page.locator('.partial-plan')).toHaveCount(0);
 });
@@ -149,8 +150,20 @@ test('CONCLUSION-01 Result closes with current-record guidance, not a validation
 test('MOBILE-01 Core flow fits 375px viewport', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await submitPlan(page);
+  await expect(page.locator('.mobile-parts-overview')).toBeVisible();
+  await expect(page.locator('.mobile-part-row')).toHaveCount(14);
+  await expect(page.locator('.mobile-first-stage')).toBeVisible();
+  await expect(page.locator('.mobile-part-details')).toHaveCount(14);
+  await expect(page.locator('.mobile-part-details[open]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'View Need list' })).toHaveAttribute('href', '#need-summary');
+  await expect(page.getByRole('link', { name: 'Back to parts' })).toHaveAttribute('href', '#parts-start');
+  await expect(page.locator('.mobile-part-row').first().getByLabel('Already have')).toBeVisible();
+  const compactHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+  expect(compactHeight).toBeLessThan(9_000);
   await page.getByRole('button', { name: 'I need all parts' }).click();
   await expect(page.locator('.budget-check')).toBeVisible();
+  await page.locator('.mobile-part-details').first().getByText('Why this part').click();
+  await expect(page.locator('.mobile-part-details').first().locator('.recipe-reason')).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
