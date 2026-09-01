@@ -184,6 +184,7 @@ For each session, record only:
 
 Every feature suggested during the week goes here first. Nothing moves out before the current milestone's acceptance test passes.
 
+- Wheeled home helper V2: a minimal 2WD platform carrying up to 100 g on a flat indoor floor, controlled by phone-assisted voice commands (`forward`, `left`, `right`, `stop`). Draft recipe: `docs/V2_WHEELED_HOME_HELPER_RECIPE.md`.
 - Additional robot projects or behaviors
 - More boards, motors, or sensors
 - AI selection and explanation grounded in the parts catalogue
